@@ -685,6 +685,7 @@
                     <button class="official-tab-btn" data-tab="bills" onclick="showOfficialTab('bills')">💰 Bill Payments</button>
                     <button class="official-tab-btn" data-tab="activity" onclick="showOfficialTab('activity')">📊 Activity Logs</button>
                     <button class="official-tab-btn" data-tab="health" onclick="showOfficialTab('health')">🏥 Health Services</button>
+                    <button class="official-tab-btn" data-tab="feedback" onclick="showOfficialTab('feedback')">⭐ Citizen Feedback</button>
                 </div>
 
                 <div id="official-tab-users" class="official-tab-content active">
@@ -725,6 +726,13 @@
                 <div id="official-tab-health" class="official-tab-content">
                     <h3>Health Services Data</h3>
                     <div id="official-health-data"></div>
+                </div>
+
+                <div id="official-tab-feedback" class="official-tab-content">
+                    <h3>Citizen Feedback Dashboard</h3>
+                    <div id="feedback-analytics"></div>
+                    <div id="official-feedback-list"></div>
+                    <button class="btn-primary" onclick="syncAllFeedbackToGoogleSheets()" style="margin-top: 20px;">📊 Sync All Feedback to Google Sheets</button>
                 </div>
             </div>
         </div>
@@ -1308,6 +1316,7 @@
     <script src="digital-id-card.js"></script>
     <script src="health-services.js"></script>
     <script src="citizen-feedback.js"></script>
+    <script src="official-feedback-dashboard.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const commentField = document.getElementById('feedback-comment');

@@ -17,6 +17,39 @@ function loadGoogleSheetsConfig() {
     }
 }
 
+async function syncFeedbackToGoogleSheets(feedbackData) {
+    if (!GOOGLE_SHEETS_CONFIG.enabled || !GOOGLE_SHEETS_CONFIG.webAppUrl) {
+        console.log('Google Sheets sync is not enabled');
+        return { success: false, reason: 'not_configured' };
+    }
+    
+    try {
+        const response = await fetch(GOOGLE_SHEETS_CONFIG.webAppUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                dataType: 'feedback',
+                id: feedbackData.id,
+                userId: feedbackData.userId,
+                serviceType: feedbackData.serviceType,
+                rating: feedbackData.rating,
+                comment: feedbackData.comment || '',
+                timestamp: feedbackData.timestamp
+            })
+        });
+        
+        console.log('Feedback synced to Google Sheets successfully');
+        return { success: true, timestamp: new Date().toISOString() };
+        
+    } catch (error) {
+        console.error('Failed to sync feedback to Google Sheets:', error);
+        return { success: false, error: error.message };
+    }
+}
+
 async function syncUserToGoogleSheets(userData) {
     if (!GOOGLE_SHEETS_CONFIG.enabled || !GOOGLE_SHEETS_CONFIG.webAppUrl) {
         console.log('Google Sheets sync is not enabled');

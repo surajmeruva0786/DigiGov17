@@ -43,6 +43,9 @@ function showOfficialTab(tab) {
         case 'health':
             displayAllHealthData();
             break;
+        case 'feedback':
+            displayOfficialFeedbackDashboard();
+            break;
     }
 }
 
