@@ -50,11 +50,11 @@
                 <form id="user-login-form">
                     <div class="form-group">
                         <label data-i18n="userLogin.phone">Phone Number</label>
-                        <input type="tel" id="user-login-phone" data-i18n="userLogin.phonePlaceholder" placeholder="10-digit phone number" required>
+                        <input type="tel" id="user-login-phone" autocomplete="tel" data-i18n="userLogin.phonePlaceholder" placeholder="10-digit phone number" required>
                     </div>
                     <div class="form-group">
                         <label data-i18n="userLogin.password">Password</label>
-                        <input type="password" id="user-login-password" data-i18n="userLogin.passwordPlaceholder" placeholder="Enter password" required>
+                        <input type="password" id="user-login-password" autocomplete="current-password" data-i18n="userLogin.passwordPlaceholder" placeholder="Enter password" required>
                     </div>
                     <button type="submit" class="btn-primary" data-i18n="userLogin.loginButton">Login</button>
                 </form>
@@ -86,15 +86,15 @@
                     </div>
                     <div class="form-group">
                         <label data-i18n="userRegister.phone">Phone Number *</label>
-                        <input type="tel" id="user-phone" data-i18n-placeholder="userRegister.phonePlaceholder" placeholder="10-digit phone number" required>
+                        <input type="tel" id="user-phone" autocomplete="tel" data-i18n-placeholder="userRegister.phonePlaceholder" placeholder="10-digit phone number" required>
                     </div>
                     <div class="form-group">
                         <label data-i18n="userRegister.email">Email *</label>
-                        <input type="email" id="user-email" data-i18n-placeholder="userRegister.emailPlaceholder" placeholder="your.email@example.com" required>
+                        <input type="email" id="user-email" autocomplete="email" data-i18n-placeholder="userRegister.emailPlaceholder" placeholder="your.email@example.com" required>
                     </div>
                     <div class="form-group">
                         <label data-i18n="userRegister.password">Password *</label>
-                        <input type="password" id="user-password" data-i18n-placeholder="userRegister.passwordPlaceholder" placeholder="Create password" required>
+                        <input type="password" id="user-password" autocomplete="new-password" data-i18n-placeholder="userRegister.passwordPlaceholder" placeholder="Create password" required>
                     </div>
                     <div class="form-group">
                         <label data-i18n="userRegister.address">Address *</label>
@@ -134,11 +134,11 @@
                 <form id="official-login-form">
                     <div class="form-group">
                         <label data-i18n="officialLogin.email">Email</label>
-                        <input type="email" id="official-login-email" data-i18n-placeholder="officialLogin.emailPlaceholder" placeholder="Official email" required>
+                        <input type="email" id="official-login-email" autocomplete="email" data-i18n-placeholder="officialLogin.emailPlaceholder" placeholder="Official email" required>
                     </div>
                     <div class="form-group">
                         <label data-i18n="officialLogin.password">Password</label>
-                        <input type="password" id="official-login-password" data-i18n-placeholder="officialLogin.passwordPlaceholder" placeholder="Enter password" required>
+                        <input type="password" id="official-login-password" autocomplete="current-password" data-i18n-placeholder="officialLogin.passwordPlaceholder" placeholder="Enter password" required>
                     </div>
                     <button type="submit" class="btn-primary" data-i18n="officialLogin.loginButton">Login</button>
                 </form>
@@ -161,11 +161,11 @@
                     </div>
                     <div class="form-group">
                         <label data-i18n="officialRegister.email">Email *</label>
-                        <input type="email" id="official-email" data-i18n-placeholder="officialRegister.emailPlaceholder" placeholder="official.email@gov.in" required>
+                        <input type="email" id="official-email" autocomplete="email" data-i18n-placeholder="officialRegister.emailPlaceholder" placeholder="official.email@gov.in" required>
                     </div>
                     <div class="form-group">
                         <label data-i18n="officialRegister.password">Password *</label>
-                        <input type="password" id="official-password" data-i18n-placeholder="officialRegister.passwordPlaceholder" placeholder="Create password" required>
+                        <input type="password" id="official-password" autocomplete="new-password" data-i18n-placeholder="officialRegister.passwordPlaceholder" placeholder="Create password" required>
                     </div>
                     <div class="form-group">
                         <label data-i18n="officialRegister.qualification">Qualification *</label>
@@ -1278,9 +1278,14 @@
                 <h2 data-i18n="education.title">🎓 Education Assistance</h2>
             </div>
             <div class="education-container">
-                <button class="btn-primary" onclick="showScholarshipApplicationForm()" data-i18n="education.applyScholarship">+ Apply for Scholarship</button>
-                
                 <div class="section-header">
+                    <h3>📚 Available Government Scholarships</h3>
+                    <p class="section-description">Browse and apply for scholarships that match your eligibility</p>
+                </div>
+                
+                <div id="available-scholarships-list" class="scholarships-grid"></div>
+                
+                <div class="section-header" style="margin-top: 40px;">
                     <h3 data-i18n="education.yourApplications">Your Scholarship Applications</h3>
                 </div>
                 
@@ -1293,6 +1298,7 @@
                 <button class="back-btn" onclick="showEducationAssistance()">← <span data-i18n="common.back">Back</span></button>
                 <h2 data-i18n="education.applicationForm">Scholarship Application</h2>
             </div>
+                <div id="selected-scholarship-info"></div>
             <div class="form-container">
                 <form id="scholarship-application-form">
                     <div class="form-group">
