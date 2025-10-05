@@ -12,7 +12,8 @@ var SHEET_NAMES = {
   ORGAN_DONORS: 'OrganDonors',
   BLOOD_REQUESTS: 'BloodRequests',
   ORGAN_REQUESTS: 'OrganRequests',
-  CITIZEN_FEEDBACK: 'CitizenFeedback'
+  CITIZEN_FEEDBACK: 'CitizenFeedback',
+  SCHOLARSHIPS: 'ScholarshipApplications'
 };
 
 // SETUP INSTRUCTIONS:
@@ -76,6 +77,12 @@ function doPost(e) {
         result = updateOrganRequestStatus(data);
         break;
       case 'feedback':
+        break;
+      case 'scholarship':
+        result = saveScholarshipApplication(data);
+        break;
+      case 'updateScholarshipStatus':
+        result = updateScholarshipStatus(data);
         result = saveCitizenFeedback(data);
         break;
       default:
@@ -137,6 +144,12 @@ function doGet(e) {
         result = getOrganRequests();
         break;
       case 'feedback':
+        break;
+      case 'scholarship':
+        result = saveScholarshipApplication(data);
+        break;
+      case 'updateScholarshipStatus':
+        result = updateScholarshipStatus(data);
         result = getCitizenFeedback();
         break;
       default:
@@ -1000,4 +1013,86 @@ function getAllData() {
       '/exec?dataType=feedback'
     ]
   };
+}
+
+function saveScholarshipApplication(data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAMES.SCHOLARSHIPS);
+  
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAMES.SCHOLARSHIPS);
+    sheet.appendRow([
+      'Timestamp',
+      'Application ID',
+      'User ID',
+      'User Name',
+      'User Email',
+      'Scholarship ID',
+      'Scholarship Title',
+      'Student Name',
+      'Course',
+      'Grade/Percentage',
+      'Family Income',
+      'Purpose',
+      'Status',
+      'Eligibility',
+      'Official Remarks',
+      'Mark Sheets Count',
+      'Applied Date'
+    ]);
+  }
+  
+  sheet.appendRow([
+    new Date().toISOString(),
+    data.id || '',
+    data.userId || '',
+    data.userName || '',
+    data.userEmail || '',
+    data.scholarshipId || '',
+    data.scholarshipTitle || '',
+    data.studentName || '',
+    data.course || '',
+    data.gradePercentage || '',
+    data.familyIncome || '',
+    data.purpose || '',
+    data.status || 'Under Review',
+    data.eligibility || '',
+    data.officialRemarks || '',
+    data.markSheetsCount || 0,
+    data.appliedAt || new Date().toISOString()
+  ]);
+  
+  return {
+    success: true,
+    message: 'Scholarship application saved to Google Sheets',
+    timestamp: new Date().toISOString()
+  };
+}
+
+function updateScholarshipStatus(data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEET_NAMES.SCHOLARSHIPS);
+  
+  if (!sheet) {
+    return { success: false, error: 'Scholarships sheet not found' };
+  }
+  
+  const dataRange = sheet.getDataRange();
+  const values = dataRange.getValues();
+  
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][1] === data.applicationId) {
+      sheet.getRange(i + 1, 13).setValue(data.status);
+      if (data.remarks) {
+        sheet.getRange(i + 1, 15).setValue(data.remarks);
+      }
+      return {
+        success: true,
+        message: 'Scholarship status updated in Google Sheets',
+        timestamp: new Date().toISOString()
+      };
+    }
+  }
+  
+  return { success: false, error: 'Application not found' };
 }

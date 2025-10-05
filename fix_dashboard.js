@@ -308,6 +308,18 @@ function updateScholarshipStatus(applicationId, newStatus, remarks) {
     applications[appIndex] = application;
     localStorage.setItem('scholarshipApplications', JSON.stringify(applications));
     
+    
+    if (typeof updateScholarshipStatusInGoogleSheets === 'function') {
+        updateScholarshipStatusInGoogleSheets(applicationId, newStatus, remarks).then(result => {
+            if (result.success) {
+                console.log('✓ Scholarship status update synced to Google Sheets');
+            } else {
+                console.log('✗ Google Sheets sync failed:', result.reason || result.error);
+            }
+        }).catch(err => {
+            console.log('✗ Google Sheets sync error:', err);
+        });
+    }
     alert(`Application ${newStatus.toLowerCase()} successfully!`);
     
     displayScholarshipVerifications();

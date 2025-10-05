@@ -618,3 +618,120 @@ function showGoogleSheetsSetup() {
 }
 
 loadGoogleSheetsConfig();
+
+async function syncScholarshipToGoogleSheets(applicationData) {
+    if (!GOOGLE_SHEETS_CONFIG.enabled || !GOOGLE_SHEETS_CONFIG.webAppUrl) {
+        console.log('Google Sheets sync is not enabled for scholarship application');
+        return { success: false, reason: 'not_configured' };
+    }
+    
+    try {
+        const response = await fetch(GOOGLE_SHEETS_CONFIG.webAppUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                dataType: 'scholarship',
+                id: applicationData.id,
+                userId: applicationData.userId,
+                userName: applicationData.userName || '',
+                userEmail: applicationData.userEmail || '',
+                scholarshipId: applicationData.scholarshipId || '',
+                scholarshipTitle: applicationData.scholarshipTitle || '',
+                studentName: applicationData.studentName,
+                course: applicationData.course,
+                gradePercentage: applicationData.gradePercentage,
+                familyIncome: applicationData.familyIncome,
+                purpose: applicationData.purpose || '',
+                status: applicationData.status,
+                eligibility: applicationData.eligibility ? JSON.stringify(applicationData.eligibility) : '',
+                officialRemarks: applicationData.officialRemarks || '',
+                appliedAt: applicationData.appliedAt,
+                markSheetsCount: applicationData.markSheets ? applicationData.markSheets.length : 0
+            })
+        });
+        
+        console.log('✓ Scholarship application synced to Google Sheets successfully');
+        return { success: true, timestamp: new Date().toISOString() };
+        
+    } catch (error) {
+        console.error('✗ Failed to sync scholarship application to Google Sheets:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+async function updateScholarshipStatusInGoogleSheets(applicationId, newStatus, remarks) {
+    if (!GOOGLE_SHEETS_CONFIG.enabled || !GOOGLE_SHEETS_CONFIG.webAppUrl) {
+        console.log('Google Sheets sync is not enabled for scholarship status update');
+        return { success: false, reason: 'not_configured' };
+    }
+    
+    try {
+        const response = await fetch(GOOGLE_SHEETS_CONFIG.webAppUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                dataType: 'updateScholarshipStatus',
+                applicationId: applicationId,
+                status: newStatus,
+                remarks: remarks || '',
+                updatedAt: new Date().toISOString()
+            })
+        });
+        
+        console.log('✓ Scholarship status updated in Google Sheets successfully');
+        return { success: true, timestamp: new Date().toISOString() };
+        
+    } catch (error) {
+        console.error('✗ Failed to update scholarship status in Google Sheets:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+async function syncAllScholarshipApplications() {
+    if (!GOOGLE_SHEETS_CONFIG.enabled) {
+        alert('Please configure Google Sheets first via the dashboard settings');
+        console.log('Google Sheets sync not configured');
+        return;
+    }
+    
+    const applications = JSON.parse(localStorage.getItem('scholarshipApplications') || '[]');
+    
+    if (applications.length === 0) {
+        alert('No scholarship applications to sync');
+        console.log('No scholarship applications found');
+        return;
+    }
+    
+    let syncedCount = 0;
+    let failedCount = 0;
+    
+    console.log(`Starting sync of ${applications.length} scholarship application(s)...`);
+    
+    const syncPromises = applications.map(app => 
+        syncScholarshipToGoogleSheets(app)
+            .then(result => {
+                if (result.success) {
+                    syncedCount++;
+                    console.log(`✓ Synced application ${app.id}`);
+                } else {
+                    failedCount++;
+                    console.error(`✗ Failed to sync application ${app.id}:`, result.reason || result.error);
+                }
+            })
+            .catch(err => {
+                failedCount++;
+                console.error(`✗ Error syncing application ${app.id}:`, err);
+            })
+    );
+    
+    Promise.all(syncPromises).then(() => {
+        alert(`Sync complete!\nSynced: ${syncedCount}\nFailed: ${failedCount}`);
+        console.log(`Scholarship sync complete: ${syncedCount} synced, ${failedCount} failed`);
+    });
+}
