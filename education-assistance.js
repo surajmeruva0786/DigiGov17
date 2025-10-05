@@ -213,10 +213,10 @@ function loadScholarshipApplications() {
                 <p><strong>Course:</strong> ${sanitizeHTML(app.course)}</p>
                 <p><strong>Grade/Percentage:</strong> ${app.gradePercentage}%</p>
                 <p><strong>Family Income:</strong> ₹${app.familyIncome.toLocaleString('en-IN')}/year</p>
-                <p><strong>Eligibility:</strong> <span class="eligibility-tag ${app.eligibility.eligible ? 'eligible' : 'not-eligible'}">${app.eligibility.eligible ? '✓ Eligible' : '✗ Not Eligible'}</span></p>
-                ${app.eligibility.eligible ? `<p><strong>Matched Scholarships:</strong> ${app.eligibility.suggestions.join(', ')}</p>` : `<p><strong>Reason:</strong> ${sanitizeHTML(app.eligibility.reason)}</p>`}
+                <p><strong>Status:</strong> ${sanitizeHTML(app.status)}</p>
+                ${app.officialRemarks ? `<p><strong>Official Remarks:</strong> ${sanitizeHTML(app.officialRemarks)}</p>` : ''}
                 <p><strong>Applied:</strong> ${new Date(app.appliedAt).toLocaleDateString('en-IN')}</p>
-                ${app.markSheets && app.markSheets.length > 0 ? `<p><strong>Mark Sheets:</strong> ${app.markSheets.length} uploaded</p>` : ''}
+                ${app.statusHistory && app.statusHistory.length > 0 ? `<p><strong>Last Updated:</strong> ${new Date(app.statusHistory[app.statusHistory.length - 1].timestamp).toLocaleString('en-IN')}</p>` : ''}
             </div>
             <div class="application-actions">
                 <button class="btn-secondary" onclick="viewApplicationDetails('${app.id}')">View Details</button>
@@ -346,6 +346,8 @@ document.getElementById('scholarship-application-form').addEventListener('submit
         const applicationData = {
             id: 'SA' + Date.now(),
             userId: currentUser.phone,
+            userName: currentUser.name || currentUser.email.split('@')[0],
+            userEmail: currentUser.email,
             scholarshipId: selectedScholarshipId,
             scholarshipTitle: scholarshipTitle,
             studentName,
@@ -356,7 +358,16 @@ document.getElementById('scholarship-application-form').addEventListener('submit
             markSheets,
             eligibility: eligibilityResult,
             status: eligibilityResult.eligible ? 'Under Review' : 'Not Eligible',
-            appliedAt: new Date().toISOString()
+            appliedAt: new Date().toISOString(),
+            statusHistory: [
+                {
+                    status: eligibilityResult.eligible ? 'Under Review' : 'Not Eligible',
+                    timestamp: new Date().toISOString(),
+                    updatedBy: 'System',
+                    remarks: eligibilityResult.eligible ? 'Application submitted and eligible for review' : 'Application submitted but not eligible'
+                }
+            ],
+            officialRemarks: ''
         };
         
         const applications = JSON.parse(localStorage.getItem('scholarshipApplications') || '[]');
@@ -425,6 +436,21 @@ function viewApplicationDetails(applicationId) {
         return;
     }
     
+    let statusHistoryHtml = '';
+    if (application.statusHistory && application.statusHistory.length > 0) {
+        statusHistoryHtml = '<div class="status-history"><h4>Status History:</h4><ul>';
+        application.statusHistory.forEach(history => {
+            statusHistoryHtml += `
+                <li>
+                    <strong>${sanitizeHTML(history.status)}</strong> - ${new Date(history.timestamp).toLocaleString('en-IN')}<br>
+                    <em>By: ${sanitizeHTML(history.updatedBy)}</em><br>
+                    ${history.remarks ? `Remarks: ${sanitizeHTML(history.remarks)}` : ''}
+                </li>
+            `;
+        });
+        statusHistoryHtml += '</ul></div>';
+    }
+    
     const detailsHtml = `
         <div class="modal-overlay" onclick="closeModal(event)">
             <div class="modal-content" onclick="event.stopPropagation()">
@@ -438,11 +464,11 @@ function viewApplicationDetails(applicationId) {
                     <p><strong>Family Income:</strong> ₹${application.familyIncome.toLocaleString('en-IN')}/year</p>
                     <p><strong>Purpose:</strong> ${sanitizeHTML(application.purpose)}</p>
                     <p><strong>Status:</strong> <span class="application-status status-${application.status.toLowerCase().replace(' ', '-')}">${sanitizeHTML(application.status)}</span></p>
-                    <p><strong>Eligibility:</strong> <span class="eligibility-tag ${application.eligibility.eligible ? 'eligible' : 'not-eligible'}">${application.eligibility.eligible ? '✓ Eligible' : '✗ Not Eligible'}</span></p>
-                    ${application.eligibility.eligible ? `<p><strong>Matched Scholarships:</strong><br>${application.eligibility.suggestions.join('<br>')}</p>` : `<p><strong>Reason:</strong> ${sanitizeHTML(application.eligibility.reason)}</p>`}
+                    ${application.officialRemarks ? `<p><strong>Official Remarks:</strong> ${sanitizeHTML(application.officialRemarks)}</p>` : ''}
                     <p><strong>Applied:</strong> ${new Date(application.appliedAt).toLocaleString('en-IN')}</p>
                     <p><strong>Mark Sheets:</strong> ${application.markSheets ? application.markSheets.length : 0} uploaded</p>
                 </div>
+                ${statusHistoryHtml}
                 <button class="btn-primary" onclick="closeModal()">Close</button>
             </div>
         </div>
@@ -498,3 +524,12 @@ function sanitizeHTML(str) {
     div.textContent = str;
     return div.innerHTML;
 }
+
+window.addEventListener('storage', function(e) {
+    if (e.key === 'scholarshipApplications' && typeof currentUser !== 'undefined' && currentUser) {
+        const currentScreen = document.querySelector('.screen.active');
+        if (currentScreen && currentScreen.id === 'education-assistance-screen') {
+            loadScholarshipApplications();
+        }
+    }
+});
