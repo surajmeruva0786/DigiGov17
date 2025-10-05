@@ -288,3 +288,44 @@ function sanitizeHTML(str) {
     div.textContent = str;
     return div.innerHTML;
 }
+
+function syncUserFeedbackToSheets() {
+    if (!GOOGLE_SHEETS_CONFIG || !GOOGLE_SHEETS_CONFIG.enabled) {
+        alert('Google Sheets sync is not configured. Please configure it in the settings.');
+        console.log('Google Sheets sync not configured');
+        return;
+    }
+    
+    const allFeedback = JSON.parse(localStorage.getItem('feedbackData') || '[]');
+    const userFeedback = allFeedback.filter(f => f.userId === currentUser.phone);
+    
+    if (userFeedback.length === 0) {
+        alert('No feedback to sync');
+        return;
+    }
+    
+    let syncedCount = 0;
+    let failedCount = 0;
+    
+    const syncPromises = userFeedback.map(feedback => 
+        syncFeedbackToGoogleSheets(feedback)
+            .then(result => {
+                if (result.success) {
+                    syncedCount++;
+                    console.log(`Synced feedback ${feedback.id} successfully`);
+                } else {
+                    failedCount++;
+                    console.error(`Failed to sync feedback ${feedback.id}:`, result.reason || result.error);
+                }
+            })
+            .catch(err => {
+                failedCount++;
+                console.error(`Error syncing feedback ${feedback.id}:`, err);
+            })
+    );
+    
+    Promise.all(syncPromises).then(() => {
+        alert(`Sync complete!\nSynced: ${syncedCount}\nFailed: ${failedCount}`);
+        console.log(`Feedback sync complete: ${syncedCount} synced, ${failedCount} failed`);
+    });
+}

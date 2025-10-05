@@ -11,7 +11,8 @@ var SHEET_NAMES = {
   BLOOD_DONORS: 'BloodDonors',
   ORGAN_DONORS: 'OrganDonors',
   BLOOD_REQUESTS: 'BloodRequests',
-  ORGAN_REQUESTS: 'OrganRequests'
+  ORGAN_REQUESTS: 'OrganRequests',
+  CITIZEN_FEEDBACK: 'CitizenFeedback'
 };
 
 // SETUP INSTRUCTIONS:
@@ -74,6 +75,9 @@ function doPost(e) {
       case 'updateOrganRequestStatus':
         result = updateOrganRequestStatus(data);
         break;
+      case 'feedback':
+        result = saveCitizenFeedback(data);
+        break;
       default:
         result = { success: false, error: 'Unknown data type: ' + dataType };
     }
@@ -131,6 +135,9 @@ function doGet(e) {
         break;
       case 'organRequests':
         result = getOrganRequests();
+        break;
+      case 'feedback':
+        result = getCitizenFeedback();
         break;
       default:
         result = { success: false, error: 'Unknown data type' };
@@ -889,6 +896,67 @@ function getOrganRequests() {
   return { success: true, requests: requests, count: requests.length };
 }
 
+function saveCitizenFeedback(data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAMES.CITIZEN_FEEDBACK);
+  
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAMES.CITIZEN_FEEDBACK);
+    sheet.appendRow([
+      'Timestamp',
+      'Feedback ID',
+      'User ID',
+      'User Name',
+      'Service Type',
+      'Rating',
+      'Comment',
+      'Voice Note Link',
+      'Submitted At'
+    ]);
+  }
+  
+  sheet.appendRow([
+    new Date().toISOString(),
+    data.id,
+    data.userId,
+    data.userName || '',
+    data.serviceType,
+    data.rating,
+    data.comment || '',
+    data.voiceNoteLink || '',
+    data.timestamp
+  ]);
+  
+  return {
+    success: true,
+    message: 'Citizen feedback saved to Google Sheets',
+    timestamp: new Date().toISOString()
+  };
+}
+
+function getCitizenFeedback() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName(SHEET_NAMES.CITIZEN_FEEDBACK);
+  
+  if (!sheet) {
+    return { success: false, message: 'No data found' };
+  }
+  
+  const data = sheet.getDataRange().getValues();
+  const headers = data[0];
+  const rows = data.slice(1);
+  
+  const feedback = rows.map(row => {
+    const item = {};
+    headers.forEach((header, index) => {
+      item[header] = row[index];
+    });
+    return item;
+  });
+  
+  return { success: true, feedback: feedback, count: feedback.length };
+}
+
 function getAllData() {
   const usersData = getUsers();
   const schemesData = getSchemes();
@@ -900,6 +968,7 @@ function getAllData() {
   const organDonorsData = getOrganDonors();
   const bloodRequestsData = getBloodRequests();
   const organRequestsData = getOrganRequests();
+  const feedbackData = getCitizenFeedback();
   
   return {
     success: true,
@@ -913,7 +982,8 @@ function getAllData() {
       bloodDonors: bloodDonorsData.donors || [],
       organDonors: organDonorsData.donors || [],
       bloodRequests: bloodRequestsData.requests || [],
-      organRequests: organRequestsData.requests || []
+      organRequests: organRequestsData.requests || [],
+      feedback: feedbackData.feedback || []
     },
     timestamp: new Date().toISOString(),
     availableEndpoints: [
@@ -926,7 +996,8 @@ function getAllData() {
       '/exec?dataType=bloodDonors',
       '/exec?dataType=organDonors',
       '/exec?dataType=bloodRequests',
-      '/exec?dataType=organRequests'
+      '/exec?dataType=organRequests',
+      '/exec?dataType=feedback'
     ]
   };
 }

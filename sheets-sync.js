@@ -24,6 +24,10 @@ async function syncFeedbackToGoogleSheets(feedbackData) {
     }
     
     try {
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const user = users.find(u => u.phone === feedbackData.userId);
+        const userName = user ? (user.name || user.email) : feedbackData.userId;
+        
         const response = await fetch(GOOGLE_SHEETS_CONFIG.webAppUrl, {
             method: 'POST',
             mode: 'no-cors',
@@ -34,9 +38,11 @@ async function syncFeedbackToGoogleSheets(feedbackData) {
                 dataType: 'feedback',
                 id: feedbackData.id,
                 userId: feedbackData.userId,
+                userName: userName,
                 serviceType: feedbackData.serviceType,
                 rating: feedbackData.rating,
                 comment: feedbackData.comment || '',
+                voiceNoteLink: feedbackData.voiceNoteLink || '',
                 timestamp: feedbackData.timestamp
             })
         });
