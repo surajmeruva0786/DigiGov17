@@ -8,6 +8,7 @@
         showChildren: window.showChildren,
         showBillPayments: window.showBillPayments,
         showDocuments: window.showDocuments,
+        showEducationAssistance: window.showEducationAssistance,
         logout: window.logout
     };
 
@@ -96,6 +97,15 @@
             originals.showDocuments();
             if (typeof announceNavigation === 'function') {
                 announceNavigation('documents');
+            }
+        }
+    };
+
+    window.showEducationAssistance = function() {
+        if (typeof originals.showEducationAssistance === 'function') {
+            originals.showEducationAssistance();
+            if (typeof announceNavigation === 'function') {
+                announceNavigation('education');
             }
         }
     };

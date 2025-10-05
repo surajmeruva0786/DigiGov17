@@ -136,6 +136,8 @@ const translations = {
             documentsDesc: 'Manage documents',
             citizenFeedback: 'Citizen Feedback',
             citizenFeedbackDesc: 'Rate your service experience',
+            educationAssistance: 'Education Assistance',
+            educationAssistanceDesc: 'Apply for scholarships',
             document: 'document',
             documents_plural: 'documents'
         },
@@ -161,6 +163,26 @@ const translations = {
             selectServiceError: 'Please select a service to rate',
             selectRatingError: 'Please select a star rating',
             noFeedback: 'No feedback submitted yet'
+        },
+        
+        education: {
+            title: 'Education Assistance',
+            applyScholarship: '+ Apply for Scholarship',
+            yourApplications: 'Your Scholarship Applications',
+            applicationForm: 'Scholarship Application',
+            studentName: 'Student Name *',
+            studentNamePlaceholder: 'Full name of the student',
+            course: 'Course/Class *',
+            selectCourse: 'Select Course/Class',
+            gradePercentage: 'Grade/Percentage (%) *',
+            gradePlaceholder: 'Enter percentage (0-100)',
+            familyIncome: 'Family Annual Income (₹) *',
+            incomePlaceholder: 'Enter annual family income',
+            purpose: 'Purpose/Remarks',
+            purposePlaceholder: 'Why do you need this scholarship?',
+            markSheets: 'Upload Mark Sheets *',
+            markSheetsHint: 'Upload latest mark sheets/grade cards (multiple files allowed)',
+            submitApplication: 'Submit Application'
         },
         
         schemes: {
@@ -482,6 +504,8 @@ const translations = {
             noDocuments: 'अभी तक कोई दस्तावेज़ अपलोड नहीं किया गया',
             noComplaints: 'अभी तक कोई शिकायत दर्ज नहीं की गई',
             noApplications: 'अभी तक कोई योजना आवेदन नहीं',
+            educationAssistance: 'शिक्षा सहायता',
+            educationAssistanceDesc: 'छात्रवृत्ति के लिए आवेदन करें',
             total: 'कुल',
             totalComplaints: 'कुल शिकायतें',
             totalApplications: 'कुल आवेदन',

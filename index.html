@@ -272,6 +272,11 @@
                     <h3 data-i18n="dashboard.citizenFeedback">Citizen Feedback</h3>
                     <p data-i18n="dashboard.citizenFeedbackDesc">Rate your service experience</p>
                 </div>
+                <div class="module-block" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="showEducationAssistance()">
+                    <div class="module-icon">🎓</div>
+                    <h3 data-i18n="dashboard.educationAssistance">Education Assistance</h3>
+                    <p data-i18n="dashboard.educationAssistanceDesc">Apply for scholarships</p>
+                </div>
             </div>
         </div>
 
@@ -1266,6 +1271,77 @@
                 </form>
             </div>
         </div>
+
+        <div id="education-assistance-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserDashboard()">← <span data-i18n="common.back">Back</span></button>
+                <h2 data-i18n="education.title">🎓 Education Assistance</h2>
+            </div>
+            <div class="education-container">
+                <button class="btn-primary" onclick="showScholarshipApplicationForm()" data-i18n="education.applyScholarship">+ Apply for Scholarship</button>
+                
+                <div class="section-header">
+                    <h3 data-i18n="education.yourApplications">Your Scholarship Applications</h3>
+                </div>
+                
+                <div id="scholarship-applications-list"></div>
+            </div>
+        </div>
+
+        <div id="scholarship-application-form-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showEducationAssistance()">← <span data-i18n="common.back">Back</span></button>
+                <h2 data-i18n="education.applicationForm">Scholarship Application</h2>
+            </div>
+            <div class="form-container">
+                <form id="scholarship-application-form">
+                    <div class="form-group">
+                        <label data-i18n="education.studentName">Student Name *</label>
+                        <input type="text" id="scholarship-student-name" data-i18n-placeholder="education.studentNamePlaceholder" placeholder="Full name of the student" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label data-i18n="education.course">Course/Class *</label>
+                        <select id="scholarship-course" required>
+                            <option value="" data-i18n="education.selectCourse">Select Course/Class</option>
+                            <option value="Class 10">Class 10</option>
+                            <option value="Class 12">Class 12</option>
+                            <option value="Undergraduate">Undergraduate</option>
+                            <option value="Postgraduate">Postgraduate</option>
+                            <option value="Diploma">Diploma</option>
+                            <option value="Professional Course">Professional Course</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label data-i18n="education.gradePercentage">Grade/Percentage (%) *</label>
+                        <input type="number" id="scholarship-grade" data-i18n-placeholder="education.gradePlaceholder" placeholder="Enter percentage (0-100)" min="0" max="100" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label data-i18n="education.familyIncome">Family Annual Income (₹) *</label>
+                        <input type="number" id="scholarship-income" data-i18n-placeholder="education.incomePlaceholder" placeholder="Enter annual family income" min="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label data-i18n="education.purpose">Purpose/Remarks</label>
+                        <textarea id="scholarship-purpose" data-i18n-placeholder="education.purposePlaceholder" placeholder="Why do you need this scholarship?" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label data-i18n="education.markSheets">Upload Mark Sheets *</label>
+                        <input type="file" id="scholarship-marksheets" accept="image/*,.pdf" multiple required>
+                        <p class="form-hint" data-i18n="education.markSheetsHint">Upload latest mark sheets/grade cards (multiple files allowed)</p>
+                        <div id="marksheets-preview"></div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="education.submitApplication">Submit Application</button>
+                        <button type="button" class="btn-secondary" onclick="showEducationAssistance()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <div id="voice-controls" class="voice-controls">
@@ -1297,6 +1373,7 @@
                 <div class="voice-command-item">💰 <strong>Bill Payments</strong> - Opens bill payments</div>
                 <div class="voice-command-item">📄 <strong>Documents</strong> - Opens documents section</div>
                 <div class="voice-command-item">🏥 <strong>Health Services</strong> - Opens health services</div>
+                <div class="voice-command-item">🎓 <strong>Education</strong> - Opens education assistance</div>
                 <div class="voice-command-item">🏠 <strong>Dashboard</strong> - Returns to dashboard</div>
                 <div class="voice-command-item">📊 <strong>Analytics</strong> - Opens analytics</div>
                 <div class="voice-command-item">🚪 <strong>Logout</strong> - Logs you out</div>
@@ -1317,6 +1394,7 @@
     <script src="digital-id-card.js"></script>
     <script src="health-services.js"></script>
     <script src="citizen-feedback.js"></script>
+    <script src="education-assistance.js"></script>
     <script src="official-feedback-dashboard.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
