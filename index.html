@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Government Service Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div id="language-selector-fixed">
+            <select id="global-language-selector" onchange="changeLanguage(this.value)">
+                <option value="en">English</option>
+                <option value="hi">हिंदी</option>
+                <option value="te">తెలుగు</option>
+                <option value="ta">தமிழ்</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="ml">മലയാളം</option>
+                <option value="bn">বাংলা</option>
+                <option value="gu">ગુજરાતી</option>
+            </select>
+        </div>
+        <div id="home-screen" class="screen active">
+            <div class="header">
+                <h1 data-i18n="home.title">Government Service Portal</h1>
+                <p data-i18n="home.subtitle">Digital India Initiative</p>
+            </div>
+            <div class="portal-blocks">
+                <div class="portal-block" onclick="showUserLogin()">
+                    <div class="icon">👤</div>
+                    <h2 data-i18n="home.userBlock">User</h2>
+                    <p data-i18n="home.userDesc">Access citizen services</p>
+                </div>
+                <div class="portal-block" onclick="showOfficialLogin()">
+                    <div class="icon">🏛️</div>
+                    <h2 data-i18n="home.officialBlock">Government Official</h2>
+                    <p data-i18n="home.officialDesc">Admin portal</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="user-login-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showHome()"><span data-i18n="common.back">Back</span> ←</button>
+                <h2 data-i18n="userLogin.title">User Login</h2>
+            </div>
+            <div class="form-container">
+                <form id="user-login-form">
+                    <div class="form-group">
+                        <label data-i18n="userLogin.phone">Phone Number</label>
+                        <input type="tel" id="user-login-phone" data-i18n="userLogin.phonePlaceholder" placeholder="10-digit phone number" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="userLogin.password">Password</label>
+                        <input type="password" id="user-login-password" data-i18n="userLogin.passwordPlaceholder" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn-primary" data-i18n="userLogin.loginButton">Login</button>
+                </form>
+                <div class="form-footer">
+                    <p><span data-i18n="userLogin.noAccount">Don't have an account?</span> <a href="#" onclick="showUserRegister(); return false;" data-i18n="userLogin.registerLink">Register</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="user-register-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserLogin()"><span data-i18n="common.back">Back</span> ←</button>
+                <h2 data-i18n="userRegister.title">User Registration</h2>
+            </div>
+            <div class="form-container">
+                <form id="user-register-form">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="user-full-name" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="userRegister.aadhaar">Aadhaar Number *</label>
+                        <input type="text" id="user-aadhaar" data-i18n-placeholder="userRegister.aadhaarPlaceholder" placeholder="12-digit Aadhaar number" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="userRegister.aadhaarPhoto">Aadhaar Photo *</label>
+                        <input type="file" id="user-aadhaar-photo" accept="image/*" required>
+                        <div id="aadhaar-preview"></div>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="userRegister.phone">Phone Number *</label>
+                        <input type="tel" id="user-phone" data-i18n-placeholder="userRegister.phonePlaceholder" placeholder="10-digit phone number" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="userRegister.email">Email *</label>
+                        <input type="email" id="user-email" data-i18n-placeholder="userRegister.emailPlaceholder" placeholder="your.email@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="userRegister.password">Password *</label>
+                        <input type="password" id="user-password" data-i18n-placeholder="userRegister.passwordPlaceholder" placeholder="Create password" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="userRegister.address">Address *</label>
+                        <textarea id="user-address" data-i18n-placeholder="userRegister.addressPlaceholder" placeholder="Enter full address" rows="3" required></textarea>
+                    </div>
+                    
+                    <h3 data-i18n="userRegister.familyMembers">Family Members</h3>
+                    <div id="family-members">
+                        <div class="family-member">
+                            <div class="form-group">
+                                <label data-i18n="userRegister.memberName">Name</label>
+                                <input type="text" class="family-name" data-i18n-placeholder="userRegister.memberNamePlaceholder" placeholder="Family member name">
+                            </div>
+                            <div class="form-group">
+                                <label data-i18n="userRegister.relationship">Relationship</label>
+                                <input type="text" class="family-relation" data-i18n-placeholder="userRegister.relationshipPlaceholder" placeholder="e.g., Spouse, Child">
+                            </div>
+                            <div class="form-group">
+                                <label data-i18n="userRegister.age">Age</label>
+                                <input type="number" class="family-age" data-i18n-placeholder="userRegister.agePlaceholder" placeholder="Age">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-secondary" onclick="addFamilyMember()" data-i18n="userRegister.addMember">+ Add Family Member</button>
+                    
+                    <button type="submit" class="btn-primary" data-i18n="userRegister.registerButton">Register</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="official-login-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showHome()"><span data-i18n="common.back">Back</span> ←</button>
+                <h2 data-i18n="officialLogin.title">Official Login</h2>
+            </div>
+            <div class="form-container">
+                <form id="official-login-form">
+                    <div class="form-group">
+                        <label data-i18n="officialLogin.email">Email</label>
+                        <input type="email" id="official-login-email" data-i18n-placeholder="officialLogin.emailPlaceholder" placeholder="Official email" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="officialLogin.password">Password</label>
+                        <input type="password" id="official-login-password" data-i18n-placeholder="officialLogin.passwordPlaceholder" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn-primary" data-i18n="officialLogin.loginButton">Login</button>
+                </form>
+                <div class="form-footer">
+                    <p><span data-i18n="officialLogin.noAccount">Don't have an account?</span> <a href="#" onclick="showOfficialRegister(); return false;" data-i18n="officialLogin.registerLink">Register</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="official-register-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showOfficialLogin()"><span data-i18n="common.back">Back</span> ←</button>
+                <h2 data-i18n="officialRegister.title">Official Registration</h2>
+            </div>
+            <div class="form-container">
+                <form id="official-register-form">
+                    <div class="form-group">
+                        <label data-i18n="officialRegister.fullName">Full Name *</label>
+                        <input type="text" id="official-name" data-i18n-placeholder="officialRegister.fullNamePlaceholder" placeholder="Enter full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="officialRegister.email">Email *</label>
+                        <input type="email" id="official-email" data-i18n-placeholder="officialRegister.emailPlaceholder" placeholder="official.email@gov.in" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="officialRegister.password">Password *</label>
+                        <input type="password" id="official-password" data-i18n-placeholder="officialRegister.passwordPlaceholder" placeholder="Create password" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="officialRegister.qualification">Qualification *</label>
+                        <input type="text" id="official-qualification" data-i18n-placeholder="officialRegister.qualificationPlaceholder" placeholder="e.g., B.Tech, MBA" required>
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="officialRegister.department">Department *</label>
+                        <input type="text" id="official-department" data-i18n-placeholder="officialRegister.departmentPlaceholder" placeholder="e.g., Revenue, Health" required>
+                    </div>
+                    <button type="submit" class="btn-primary" data-i18n="officialRegister.registerButton">Register</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="voice-setup-screen" class="screen">
+            <div class="header">
+                <h2 data-i18n="voiceSetup.title">Voice Assistance Setup</h2>
+            </div>
+            <div class="form-container voice-setup">
+                <div class="icon-large">🎤</div>
+                <h3 data-i18n="voiceSetup.heading">Enable Voice Assistance?</h3>
+                <p data-i18n="voiceSetup.description">Voice assistance helps you navigate the portal using voice commands</p>
+                <div class="voice-buttons">
+                    <button class="btn-primary" onclick="setVoicePreference(true)" data-i18n="voiceSetup.enableButton">Yes, Enable</button>
+                    <button class="btn-secondary" onclick="setVoicePreference(false)" data-i18n="voiceSetup.disableButton">No, Thanks</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="user-dashboard-screen" class="screen">
+            <div class="header">
+                <button class="back-btn logout-btn" onclick="logout()" data-i18n="common.logout">Logout →</button>
+                <h2><span data-i18n="dashboard.welcome">Welcome</span>, <span id="user-name-display"></span>!</h2>
+                <button class="notification-bell" onclick="toggleNotificationCenter()">
+                    🔔
+                    <span id="notification-badge" class="notification-badge">0</span>
+                </button>
+            </div>
+            <div class="dashboard-summary">
+                <div class="summary-card">
+                    <h4 data-i18n="dashboard.documentsSummary">📄 Documents Summary</h4>
+                    <div id="documents-summary"></div>
+                </div>
+                <div class="summary-card">
+                    <h4 data-i18n="dashboard.complaintsSummary">📝 Complaints Status</h4>
+                    <div id="complaints-summary"></div>
+                </div>
+                <div class="summary-card">
+                    <h4 data-i18n="dashboard.schemeSummary">📋 Scheme Applications</h4>
+                    <div id="user-scheme-applications"></div>
+                </div>
+            </div>
+            
+            <div class="global-search-section">
+                <h3 data-i18n="dashboard.globalSearch">🔍 Global Search</h3>
+                <div class="global-search-box">
+                    <input type="text" id="global-search-input" data-i18n-placeholder="dashboard.searchPlaceholder" placeholder="Search across all services..." oninput="performGlobalSearch()">
+                    <button class="voice-btn" id="global-voice-btn" onclick="startGlobalVoiceSearch()">🎤</button>
+                </div>
+                <div id="global-search-status" class="search-status"></div>
+            </div>
+
+            <button class="analytics-nav-btn" onclick="showUserAnalytics()" data-i18n="dashboard.viewAnalytics">📊 View My Analytics</button>
+            <button class="analytics-nav-btn" onclick="showGoogleSheetsSetup()" style="background: linear-gradient(135deg, #34e89e 0%, #0f3443 100%);">📊 Configure Google Sheets Sync</button>
+            
+            <div class="modules-container">
+                <div class="module-block" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" onclick="showGovernmentSchemes()">
+                    <div class="module-icon">📋</div>
+                    <h3 data-i18n="dashboard.governmentSchemes">Government Schemes</h3>
+                    <p data-i18n="dashboard.governmentSchemesDesc">Browse available schemes</p>
+                </div>
+                <div class="module-block" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="showComplaints()">
+                    <div class="module-icon">📝</div>
+                    <h3 data-i18n="dashboard.complaints">Complaints</h3>
+                    <p data-i18n="dashboard.complaintsDesc">File a complaint</p>
+                </div>
+                <div class="module-block" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" onclick="showChildren()">
+                    <div class="module-icon">👶</div>
+                    <h3 data-i18n="dashboard.children">Children</h3>
+                    <p data-i18n="dashboard.childrenDesc">Manage child records</p>
+                </div>
+                <div class="module-block" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);" onclick="showBillPayments()">
+                    <div class="module-icon">💰</div>
+                    <h3 data-i18n="dashboard.billPayments">Bill Payments</h3>
+                    <p data-i18n="dashboard.billPaymentsDesc">Pay your bills</p>
+                </div>
+                <div class="module-block" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);" onclick="showDocuments()">
+                    <div class="module-icon">📄</div>
+                    <h3 data-i18n="dashboard.documents">Documents</h3>
+                    <p data-i18n="dashboard.documentsDesc">Manage documents</p>
+                </div>
+                <div class="module-block" style="background: linear-gradient(135deg, #f77062 0%, #fe5196 100%);" onclick="showDigitalIDCard()">
+                    <div class="module-icon">🪪</div>
+                    <h3>Digital ID Card</h3>
+                    <p>View your digital ID</p>
+                </div>
+                <div class="module-block" style="background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);" onclick="showHealthServices()">
+                    <div class="module-icon">🏥</div>
+                    <h3>Health Services</h3>
+                    <p>Blood & Organ Donation</p>
+                </div>
+                <div class="module-block" style="background: linear-gradient(135deg, #f093fb 0%, #a890fe 100%);" onclick="showCitizenFeedback()">
+                    <div class="module-icon">⭐</div>
+                    <h3 data-i18n="dashboard.citizenFeedback">Citizen Feedback</h3>
+                    <p data-i18n="dashboard.citizenFeedbackDesc">Rate your service experience</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="global-search-results-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserDashboard()">← Back</button>
+                <h2>Search Results</h2>
+            </div>
+            <div class="global-search-results-container">
+                <div class="search-controls">
+                    <div class="global-search-box">
+                        <input type="text" id="search-results-input" placeholder="Search across all services..." oninput="performGlobalSearchFromResults()">
+                        <button class="voice-btn" onclick="startSearchResultsVoiceSearch()">🎤</button>
+                    </div>
+                    
+                    <div class="filter-section">
+                        <h4>Filters</h4>
+                        <div class="filter-groups">
+                            <div class="filter-group">
+                                <label>Complaints</label>
+                                <select id="filter-complaint-dept" onchange="applyFilters()">
+                                    <option value="">All Departments</option>
+                                </select>
+                                <select id="filter-complaint-status" onchange="applyFilters()">
+                                    <option value="">All Status</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="In Progress">In Progress</option>
+                                    <option value="Resolved">Resolved</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Documents</label>
+                                <select id="filter-document-type" onchange="applyFilters()">
+                                    <option value="">All Types</option>
+                                    <option value="Aadhaar Card">Aadhaar Card</option>
+                                    <option value="Ration Card">Ration Card</option>
+                                    <option value="Birth Certificate">Birth Certificate</option>
+                                    <option value="Income Certificate">Income Certificate</option>
+                                    <option value="Caste Certificate">Caste Certificate</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Payments</label>
+                                <select id="filter-payment-type" onchange="applyFilters()">
+                                    <option value="">All Services</option>
+                                    <option value="Electricity">Electricity</option>
+                                    <option value="Water">Water</option>
+                                    <option value="Gas">Gas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button class="btn-secondary" onclick="clearAllFilters()">Clear All Filters</button>
+                    </div>
+                </div>
+
+                <div id="search-results-display">
+                    <p class="search-info">Enter a search term to find results across Schemes, Complaints, Payments, Children, and Documents</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="government-schemes-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserDashboard()"><span data-i18n="common.back">← Back</span></button>
+                <h2 data-i18n="schemes.title">Government Schemes</h2>
+                <p id="user-state-display"></p>
+            </div>
+            <div class="schemes-container">
+                <div class="search-section">
+                    <div class="search-box">
+                        <input type="text" id="scheme-search" data-i18n-placeholder="schemes.searchPlaceholder" placeholder="Search schemes..." oninput="searchSchemes()">
+                        <button class="voice-btn" onclick="startVoiceSearch()">🎤</button>
+                    </div>
+                </div>
+                
+                <div id="schemes-list"></div>
+
+                <div class="quick-complaint-section">
+                    <h3 data-i18n="schemes.quickComplaint">Quick Complaint</h3>
+                    <div class="complaint-box">
+                        <textarea id="quick-complaint-text" data-i18n-placeholder="schemes.complaintPlaceholder" placeholder="Type your complaint here..." rows="3"></textarea>
+                        <div class="complaint-actions">
+                            <button class="voice-btn" onclick="startVoiceComplaint()" data-i18n="schemes.voiceInput">🎤 Voice Input</button>
+                            <button class="btn-primary" onclick="submitQuickComplaint()" data-i18n="schemes.submitComplaint">Submit Complaint</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="complaints-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserDashboard()">← Back</button>
+                <h2>File a Complaint</h2>
+            </div>
+            <div class="complaints-container">
+                <div id="departments-list" class="departments-grid"></div>
+                
+                <div id="complaint-form-section" class="complaint-form-section" style="display:none;">
+                    <h3>File Complaint - <span id="selected-department"></span></h3>
+                    <form id="complaint-form">
+                        <div class="form-group">
+                            <label>Complaint Description</label>
+                            <textarea id="complaint-description" placeholder="Describe your complaint..." rows="5" required></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="voice-btn" onclick="startVoiceComplaintForm()">🎤 Voice Input</button>
+                            <button type="submit" class="btn-primary">Submit Complaint</button>
+                            <button type="button" class="btn-secondary" onclick="cancelComplaint()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="user-complaints-list" class="user-complaints-list">
+                    <h3>Your Complaints</h3>
+                    <div id="complaints-items"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="bill-payments-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserDashboard()">← Back</button>
+                <h2>Bill Payments</h2>
+            </div>
+            <div class="bill-payments-container">
+                <div class="bill-types-grid">
+                    <div class="bill-type-card" onclick="selectBillType('Electricity')">
+                        <div class="bill-icon">⚡</div>
+                        <h4>Electricity</h4>
+                        <p>Pay your electricity bill</p>
+                    </div>
+                    <div class="bill-type-card" onclick="selectBillType('Water')">
+                        <div class="bill-icon">💧</div>
+                        <h4>Water</h4>
+                        <p>Pay your water bill</p>
+                    </div>
+                    <div class="bill-type-card" onclick="selectBillType('Gas')">
+                        <div class="bill-icon">🔥</div>
+                        <h4>Gas</h4>
+                        <p>Pay your gas bill</p>
+                    </div>
+                </div>
+
+                <div id="bill-payment-form-section" class="bill-payment-form-section" style="display:none;">
+                    <h3>Pay <span id="selected-bill-type"></span> Bill</h3>
+                    <form id="bill-payment-form">
+                        <div class="form-group">
+                            <label>Consumer Number</label>
+                            <input type="text" id="consumer-number" placeholder="Enter consumer number" required>
+                            <button type="button" class="voice-btn-small" onclick="startVoiceConsumerNumber()">🎤</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Amount (₹)</label>
+                            <input type="number" id="bill-amount" placeholder="Enter amount" required>
+                            <button type="button" class="voice-btn-small" onclick="startVoiceAmount()">🎤</button>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Proceed to Payment</button>
+                            <button type="button" class="btn-secondary" onclick="cancelBillPayment()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="payment-history-section" class="payment-history-section">
+                    <h3>Payment History</h3>
+                    <div id="payment-history-items"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pin-lock-modal" class="modal">
+            <div class="modal-content">
+                <h3>🔒 Verify PIN</h3>
+                <p>Enter your 4-digit PIN to continue payment</p>
+                <form id="pin-verify-form">
+                    <div class="pin-input-group">
+                        <input type="password" maxlength="1" class="pin-digit" id="pin1" oninput="movePinFocus(this, 'pin2')">
+                        <input type="password" maxlength="1" class="pin-digit" id="pin2" oninput="movePinFocus(this, 'pin3')">
+                        <input type="password" maxlength="1" class="pin-digit" id="pin3" oninput="movePinFocus(this, 'pin4')">
+                        <input type="password" maxlength="1" class="pin-digit" id="pin4" oninput="submitPinVerify()">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closePinModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="upi-simulation-modal" class="modal">
+            <div class="modal-content">
+                <div class="upi-app-selection">
+                    <h3>Select UPI App</h3>
+                    <div class="upi-apps-grid">
+                        <div class="upi-app" onclick="processUPIPayment('Google Pay')">
+                            <div class="upi-icon">G</div>
+                            <p>Google Pay</p>
+                        </div>
+                        <div class="upi-app" onclick="processUPIPayment('PhonePe')">
+                            <div class="upi-icon">P</div>
+                            <p>PhonePe</p>
+                        </div>
+                        <div class="upi-app" onclick="processUPIPayment('Paytm')">
+                            <div class="upi-icon">₹</div>
+                            <p>Paytm</p>
+                        </div>
+                        <div class="upi-app" onclick="processUPIPayment('BHIM')">
+                            <div class="upi-icon">B</div>
+                            <p>BHIM</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="children-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserDashboard()">← Back</button>
+                <h2>Children</h2>
+            </div>
+            <div class="children-container">
+                <button class="btn-primary" onclick="showAddChildForm()">+ Add Child</button>
+                
+                <div id="add-child-form-section" class="add-child-form-section" style="display:none;">
+                    <h3>Add Child Profile</h3>
+                    <form id="add-child-form">
+                        <div class="form-group">
+                            <label>Child Name</label>
+                            <input type="text" id="child-name" placeholder="Enter child name" required>
+                            <button type="button" class="voice-btn-small" onclick="startVoiceChildName()">🎤</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input type="number" id="child-age" placeholder="Enter age" required>
+                        </div>
+                        <div class="form-group">
+                            <label>School Name</label>
+                            <input type="text" id="child-school" placeholder="Enter school name">
+                            <button type="button" class="voice-btn-small" onclick="startVoiceSchoolName()">🎤</button>
+                        </div>
+                        <div class="form-group">
+                            <label>Class/Grade</label>
+                            <input type="text" id="child-class" placeholder="e.g., 5th Grade">
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Add Child</button>
+                            <button type="button" class="btn-secondary" onclick="cancelAddChild()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="children-list" class="children-list"></div>
+            </div>
+        </div>
+
+        <div id="child-detail-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showChildren()">← Back</button>
+                <h2 id="child-detail-name">Child Details</h2>
+            </div>
+            <div class="child-detail-container">
+                <div class="child-detail-tabs">
+                    <button class="tab-btn active" onclick="showChildTab('attendance')">Attendance</button>
+                    <button class="tab-btn" onclick="showChildTab('vaccination')">Vaccination</button>
+                    <button class="tab-btn" onclick="showChildTab('learning')">Learning</button>
+                </div>
+
+                <div id="attendance-tab" class="tab-content active">
+                    <h3>Attendance Streak</h3>
+                    <div class="attendance-streak">
+                        <div class="streak-display">
+                            <div class="streak-number" id="streak-number">0</div>
+                            <p>Days Streak 🔥</p>
+                        </div>
+                        <button class="btn-secondary" onclick="markAttendance()">Mark Today's Attendance</button>
+                    </div>
+                    <div id="attendance-calendar"></div>
+                </div>
+
+                <div id="vaccination-tab" class="tab-content">
+                    <h3>Vaccination Reminders</h3>
+                    <button class="btn-secondary" onclick="showAddVaccineForm()">+ Add Vaccination</button>
+                    <div id="add-vaccine-form" class="add-vaccine-form" style="display:none;">
+                        <form id="vaccine-form">
+                            <div class="form-group">
+                                <label>Vaccine Name</label>
+                                <input type="text" id="vaccine-name" placeholder="e.g., MMR, Polio" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Due Date</label>
+                                <input type="date" id="vaccine-date" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">Add Reminder</button>
+                                <button type="button" class="btn-secondary" onclick="cancelAddVaccine()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="vaccination-list"></div>
+                </div>
+
+                <div id="learning-tab" class="tab-content">
+                    <h3>Learning Resources</h3>
+                    <button class="btn-secondary" onclick="showAddResourceForm()">+ Add Resource</button>
+                    <div id="add-resource-form" class="add-resource-form" style="display:none;">
+                        <form id="resource-form">
+                            <div class="form-group">
+                                <label>Resource Title</label>
+                                <input type="text" id="resource-title" placeholder="Enter title" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Resource Type</label>
+                                <select id="resource-type" required>
+                                    <option value="">Select type</option>
+                                    <option value="PDF">PDF Document</option>
+                                    <option value="Link">Web Link</option>
+                                    <option value="Video">Video Link</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>PDF File / URL</label>
+                                <input type="file" id="resource-file" accept=".pdf" style="display:none;">
+                                <input type="url" id="resource-url" placeholder="Enter URL" style="display:none;">
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">Add Resource</button>
+                                <button type="button" class="btn-secondary" onclick="cancelAddResource()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="resources-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="documents-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserDashboard()">← Back</button>
+                <h2>Documents</h2>
+            </div>
+            <div class="documents-container">
+                <button class="btn-primary" onclick="showUploadDocumentForm()">+ Upload Document</button>
+                
+                <div id="upload-document-form-section" class="upload-document-form-section" style="display:none;">
+                    <h3>Upload Document</h3>
+                    <form id="upload-document-form">
+                        <div class="form-group">
+                            <label>Document Type *</label>
+                            <select id="document-type" required>
+                                <option value="">Select document type</option>
+                                <option value="Aadhaar Card">Aadhaar Card</option>
+                                <option value="Ration Card">Ration Card</option>
+                                <option value="Birth Certificate">Birth Certificate</option>
+                                <option value="Income Certificate">Income Certificate</option>
+                                <option value="Caste Certificate">Caste Certificate</option>
+                                <option value="Domicile Certificate">Domicile Certificate</option>
+                                <option value="Property Document">Property Document</option>
+                                <option value="Educational Certificate">Educational Certificate</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Document Name *</label>
+                            <input type="text" id="document-name" placeholder="Enter document name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Upload File *</label>
+                            <input type="file" id="document-file" accept="image/*,.pdf" required>
+                            <div id="document-preview" class="document-preview"></div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Upload Document</button>
+                            <button type="button" class="btn-secondary" onclick="cancelUploadDocument()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="documents-list" class="documents-list">
+                    <h3>Your Documents</h3>
+                    <div id="documents-items"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="official-dashboard-screen" class="screen">
+            <div class="header">
+                <button class="back-btn logout-btn" onclick="logout()">Logout →</button>
+                <h2>Official Dashboard</h2>
+                <button class="notification-bell" onclick="toggleNotificationCenter()">
+                    🔔
+                    <span id="notification-badge-official" class="notification-badge">0</span>
+                </button>
+            </div>
+            <div class="dashboard-container">
+                <div class="welcome-message">
+                    <h3>Welcome, <span id="official-name-display"></span>!</h3>
+                </div>
+                <div class="info-card">
+                    <h4>Your Information</h4>
+                    <p><strong>Department:</strong> <span id="official-dept-display"></span></p>
+                    <p><strong>Qualification:</strong> <span id="official-qual-display"></span></p>
+                </div>
+
+                <div class="official-tabs">
+                    <button class="official-tab-btn active" data-tab="users" onclick="showOfficialTab('users')">👥 User Sign-ups</button>
+                    <button class="official-tab-btn" data-tab="schemes" onclick="showOfficialTab('schemes')">📋 Scheme Applications</button>
+                    <button class="official-tab-btn" data-tab="complaints" onclick="showOfficialTab('complaints')">📝 Complaints</button>
+                    <button class="official-tab-btn" data-tab="children" onclick="showOfficialTab('children')">👶 Children Data</button>
+                    <button class="official-tab-btn" data-tab="documents" onclick="showOfficialTab('documents')">📄 Documents</button>
+                    <button class="official-tab-btn" data-tab="bills" onclick="showOfficialTab('bills')">💰 Bill Payments</button>
+                    <button class="official-tab-btn" data-tab="activity" onclick="showOfficialTab('activity')">📊 Activity Logs</button>
+                    <button class="official-tab-btn" data-tab="health" onclick="showOfficialTab('health')">🏥 Health Services</button>
+                </div>
+
+                <div id="official-tab-users" class="official-tab-content active">
+                    <h3>Registered Users</h3>
+                    <div id="official-users-list"></div>
+                </div>
+
+                <div id="official-tab-schemes" class="official-tab-content">
+                    <h3>Scheme Applications</h3>
+                    <div id="official-schemes-list"></div>
+                </div>
+
+                <div id="official-tab-complaints" class="official-tab-content">
+                    <h3>All Complaints (Sector-wise)</h3>
+                    <div id="official-complaints-list"></div>
+                </div>
+
+                <div id="official-tab-children" class="official-tab-content">
+                    <h3>Children Data</h3>
+                    <div id="official-children-list"></div>
+                </div>
+
+                <div id="official-tab-documents" class="official-tab-content">
+                    <h3>User Documents</h3>
+                    <div id="official-documents-list"></div>
+                </div>
+
+                <div id="official-tab-bills" class="official-tab-content">
+                    <h3>Bill Payments</h3>
+                    <div id="official-bills-list"></div>
+                </div>
+
+                <div id="official-tab-activity" class="official-tab-content">
+                    <h3>Activity Logs</h3>
+                    <div id="official-activity-list"></div>
+                </div>
+
+                <div id="official-tab-health" class="official-tab-content">
+                    <h3>Health Services Data</h3>
+                    <div id="official-health-data"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="complaint-detail-modal" class="modal">
+            <div class="modal-content complaint-detail-modal">
+                <h3>Complaint Details</h3>
+                <div id="complaint-detail-content"></div>
+                <div id="complaint-actions-section"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeComplaintDetailModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="notification-center" class="notification-center">
+            <div class="notification-center-header">
+                <h3>Notifications</h3>
+                <button class="notification-close-btn" onclick="toggleNotificationCenter()">×</button>
+            </div>
+            <div id="notifications-list" class="notifications-list"></div>
+        </div>
+
+        <div id="user-analytics-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserDashboard()">← Back</button>
+                <h2>My Analytics</h2>
+            </div>
+            <div class="analytics-container">
+                <div class="analytics-card">
+                    <h3>📊 Complaints Overview</h3>
+                    <div class="analytics-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="user-total-complaints">0</div>
+                            <div class="stat-label">Total Complaints</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="user-complaints-chart"></canvas>
+                    </div>
+                    <div id="user-complaints-breakdown" class="breakdown-list"></div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>💰 Payment Summary</h3>
+                    <div class="analytics-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="user-total-payments">0</div>
+                            <div class="stat-label">Total Payments</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="user-total-amount">₹0</div>
+                            <div class="stat-label">Total Amount</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="user-payments-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>📄 Documents Statistics</h3>
+                    <div class="analytics-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="user-total-documents">0</div>
+                            <div class="stat-label">Total Documents</div>
+                        </div>
+                    </div>
+                    <div id="user-documents-breakdown" class="breakdown-list"></div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>👶 Children Attendance</h3>
+                    <div id="user-children-attendance" class="children-attendance-analytics"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="official-analytics-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showOfficialDashboard()">← Back</button>
+                <h2>Analytics Dashboard</h2>
+            </div>
+            <div class="analytics-container">
+                <div class="analytics-card">
+                    <h3>📊 Complaints by Department</h3>
+                    <div class="chart-container">
+                        <canvas id="dept-complaints-chart"></canvas>
+                    </div>
+                    <div id="dept-complaints-breakdown" class="breakdown-list"></div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>📈 Pending vs Resolved</h3>
+                    <div class="analytics-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="official-total-complaints">0</div>
+                            <div class="stat-label">Total Complaints</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="status-chart"></canvas>
+                    </div>
+                    <div id="status-breakdown" class="breakdown-list"></div>
+                </div>
+
+                <div class="analytics-card">
+                    <h3>🏆 Most Common Categories</h3>
+                    <div class="chart-container">
+                        <canvas id="categories-chart"></canvas>
+                    </div>
+                    <div id="categories-breakdown" class="breakdown-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="digital-id-card-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserDashboard()">← Back</button>
+                <h2>🪪 Digital ID Card</h2>
+            </div>
+            <div class="digital-id-container">
+                <div id="no-id-card-message" class="no-id-message">
+                    <div class="icon-large">🪪</div>
+                    <h3>No Digital ID Card Found</h3>
+                    <p>Complete your registration to generate your digital ID card</p>
+                    <button class="btn-primary" onclick="generateDigitalID()">Generate ID Card</button>
+                </div>
+                
+                <div id="id-card-display" class="id-card-display" style="display: none;">
+                    <div id="id-card" class="id-card">
+                        <div class="id-card-header">
+                            <h3>GOVERNMENT OF INDIA</h3>
+                            <p>Digital Identity Card</p>
+                        </div>
+                        <div class="id-card-body">
+                            <div class="id-card-photo">
+                                <img id="id-photo" src="" alt="Photo">
+                            </div>
+                            <div class="id-card-info">
+                                <div class="id-field">
+                                    <label>Name:</label>
+                                    <span id="id-name"></span>
+                                </div>
+                                <div class="id-field">
+                                    <label>Aadhaar:</label>
+                                    <span id="id-aadhaar"></span>
+                                </div>
+                                <div class="id-field">
+                                    <label>Address:</label>
+                                    <span id="id-address"></span>
+                                </div>
+                                <div class="id-field">
+                                    <label>Phone:</label>
+                                    <span id="id-phone"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="id-card-qr">
+                            <div id="qr-code"></div>
+                            <p class="qr-label">Scan for verification</p>
+                        </div>
+                        <div class="id-card-footer">
+                            <p>Valid Government ID | Digital India Initiative</p>
+                        </div>
+                    </div>
+                    
+                    <div class="id-card-actions">
+                        <button class="btn-primary" onclick="downloadIDCard()">📥 Download ID Card</button>
+                        <button class="btn-secondary" onclick="deleteIDCard()">🗑️ Delete ID Card</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="health-services-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserDashboard()">← Back</button>
+                <h2>🏥 Health Services</h2>
+            </div>
+            <div class="health-services-container">
+                <div class="health-section">
+                    <h3 class="section-title">💉 Donation Forms</h3>
+                    <div class="health-buttons">
+                        <button class="health-btn blood-donor-btn" onclick="showBloodDonorForm()">
+                            🩸 Register as Blood Donor
+                        </button>
+                        <button class="health-btn organ-donor-btn" onclick="showOrganDonorForm()">
+                            🫀 Register as Organ Donor
+                        </button>
+                    </div>
+                </div>
+
+                <div class="health-section">
+                    <h3 class="section-title">🏥 Request Forms</h3>
+                    <div class="health-buttons">
+                        <button class="health-btn blood-request-btn" onclick="showBloodRequestForm()">
+                            🩸 Request Blood
+                        </button>
+                        <button class="health-btn organ-request-btn" onclick="showOrganRequestForm()">
+                            🫀 Request Organ
+                        </button>
+                    </div>
+                </div>
+
+                <div class="health-section">
+                    <h3 class="section-title">📋 My Health Records</h3>
+                    <div class="health-tabs">
+                        <button class="health-tab-btn active" onclick="showHealthTab('donations')">My Donations</button>
+                        <button class="health-tab-btn" onclick="showHealthTab('requests')">My Requests</button>
+                    </div>
+                    <div id="health-tab-donations" class="health-tab-content active">
+                        <div id="my-donations-display"></div>
+                    </div>
+                    <div id="health-tab-requests" class="health-tab-content">
+                        <div id="my-requests-display"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="blood-donor-form-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showHealthServices()">← Back</button>
+                <h2>🩸 Blood Donor Registration</h2>
+            </div>
+            <div class="form-container">
+                <form id="blood-donor-form">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="blood-donor-name" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Blood Group *</label>
+                        <select id="blood-donor-group" required>
+                            <option value="">Select Blood Group</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Age *</label>
+                        <input type="number" id="blood-donor-age" placeholder="Enter your age" min="18" max="65" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number *</label>
+                        <input type="tel" id="blood-donor-contact" placeholder="10-digit phone number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Location/City *</label>
+                        <input type="text" id="blood-donor-location" placeholder="Enter your city" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Availability *</label>
+                        <select id="blood-donor-availability" required>
+                            <option value="">Select Availability</option>
+                            <option value="Immediately Available">Immediately Available</option>
+                            <option value="Available in 24 hours">Available in 24 hours</option>
+                            <option value="Available in 48 hours">Available in 48 hours</option>
+                            <option value="Available on weekends">Available on weekends</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Medical History (Optional)</label>
+                        <textarea id="blood-donor-medical" placeholder="Any relevant medical information" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Register as Blood Donor</button>
+                    <button type="button" class="btn-secondary" onclick="showHealthServices()">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="organ-donor-form-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showHealthServices()">← Back</button>
+                <h2>🫀 Organ Donor Registration</h2>
+            </div>
+            <div class="form-container">
+                <form id="organ-donor-form">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="organ-donor-name" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Organ Type *</label>
+                        <select id="organ-donor-type" required>
+                            <option value="">Select Organ Type</option>
+                            <option value="Kidney">Kidney</option>
+                            <option value="Liver">Liver</option>
+                            <option value="Heart">Heart</option>
+                            <option value="Lungs">Lungs</option>
+                            <option value="Pancreas">Pancreas</option>
+                            <option value="Cornea">Cornea</option>
+                            <option value="Bone Marrow">Bone Marrow</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Age *</label>
+                        <input type="number" id="organ-donor-age" placeholder="Enter your age" min="18" max="70" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number *</label>
+                        <input type="tel" id="organ-donor-contact" placeholder="10-digit phone number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Location/City *</label>
+                        <input type="text" id="organ-donor-location" placeholder="Enter your city" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Medical Details *</label>
+                        <textarea id="organ-donor-medical" placeholder="Enter relevant medical information, blood group, etc." rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="organ-donor-consent" required>
+                            I consent to donate my organ(s) and understand the medical procedures involved
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-primary">Register as Organ Donor</button>
+                    <button type="button" class="btn-secondary" onclick="showHealthServices()">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="blood-request-form-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showHealthServices()">← Back</button>
+                <h2>🩸 Blood Request</h2>
+            </div>
+            <div class="form-container">
+                <form id="blood-request-form">
+                    <div class="form-group">
+                        <label>Patient Name *</label>
+                        <input type="text" id="blood-request-patient" placeholder="Enter patient name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Blood Group Required *</label>
+                        <select id="blood-request-group" required>
+                            <option value="">Select Blood Group</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Units Required *</label>
+                        <input type="number" id="blood-request-units" placeholder="Number of units" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Urgency Level *</label>
+                        <select id="blood-request-urgency" required>
+                            <option value="">Select Urgency</option>
+                            <option value="Critical - Immediate">Critical - Immediate</option>
+                            <option value="Urgent - Within 24 hours">Urgent - Within 24 hours</option>
+                            <option value="Moderate - Within 48 hours">Moderate - Within 48 hours</option>
+                            <option value="Normal - Within a week">Normal - Within a week</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Hospital Name *</label>
+                        <input type="text" id="blood-request-hospital" placeholder="Enter hospital name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Hospital Address *</label>
+                        <textarea id="blood-request-address" placeholder="Enter complete hospital address" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number *</label>
+                        <input type="tel" id="blood-request-contact" placeholder="10-digit phone number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Additional Information</label>
+                        <textarea id="blood-request-info" placeholder="Any additional details" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Submit Blood Request</button>
+                    <button type="button" class="btn-secondary" onclick="showHealthServices()">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="organ-request-form-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showHealthServices()">← Back</button>
+                <h2>🫀 Organ Request</h2>
+            </div>
+            <div class="form-container">
+                <form id="organ-request-form">
+                    <div class="form-group">
+                        <label>Patient Name *</label>
+                        <input type="text" id="organ-request-patient" placeholder="Enter patient name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Organ Required *</label>
+                        <select id="organ-request-type" required>
+                            <option value="">Select Organ Type</option>
+                            <option value="Kidney">Kidney</option>
+                            <option value="Liver">Liver</option>
+                            <option value="Heart">Heart</option>
+                            <option value="Lungs">Lungs</option>
+                            <option value="Pancreas">Pancreas</option>
+                            <option value="Cornea">Cornea</option>
+                            <option value="Bone Marrow">Bone Marrow</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Patient Age *</label>
+                        <input type="number" id="organ-request-age" placeholder="Enter patient age" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Urgency Level *</label>
+                        <select id="organ-request-urgency" required>
+                            <option value="">Select Urgency</option>
+                            <option value="Critical - Life Threatening">Critical - Life Threatening</option>
+                            <option value="Urgent - High Priority">Urgent - High Priority</option>
+                            <option value="Moderate - Medium Priority">Moderate - Medium Priority</option>
+                            <option value="Normal - On Waitlist">Normal - On Waitlist</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Hospital Name *</label>
+                        <input type="text" id="organ-request-hospital" placeholder="Enter hospital name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Hospital Address *</label>
+                        <textarea id="organ-request-address" placeholder="Enter complete hospital address" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Number *</label>
+                        <input type="tel" id="organ-request-contact" placeholder="10-digit phone number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Medical Details *</label>
+                        <textarea id="organ-request-medical" placeholder="Relevant medical history, blood group, compatibility requirements" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Submit Organ Request</button>
+                    <button type="button" class="btn-secondary" onclick="showHealthServices()">Cancel</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="citizen-feedback-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showUserDashboard()">← <span data-i18n="common.back">Back</span></button>
+                <h2 data-i18n="feedback.title">⭐ Citizen Feedback</h2>
+            </div>
+            <div class="feedback-container">
+                <button class="btn-primary" onclick="showSubmitFeedback()" data-i18n="feedback.submitNew">+ Submit New Feedback</button>
+                
+                <div class="feedback-filter-section">
+                    <h3 data-i18n="feedback.yourFeedback">Your Feedback History</h3>
+                    <div class="form-group">
+                        <label data-i18n="feedback.filterByService">Filter by Service Type:</label>
+                        <select id="feedback-filter" onchange="filterFeedback()">
+                            <option value="all" data-i18n="feedback.allServices">All Services</option>
+                            <option value="scheme">Government Schemes</option>
+                            <option value="complaint">Complaints</option>
+                            <option value="bill">Bill Payments</option>
+                            <option value="document">Documents</option>
+                            <option value="bloodrequest">Blood Requests</option>
+                            <option value="organrequest">Organ Requests</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="feedback-history-display"></div>
+            </div>
+        </div>
+
+        <div id="submit-feedback-screen" class="screen">
+            <div class="header">
+                <button class="back-btn" onclick="showCitizenFeedback()">← <span data-i18n="common.back">Back</span></button>
+                <h2 data-i18n="feedback.submitFeedback">Submit Feedback</h2>
+            </div>
+            <div class="form-container">
+                <form id="submit-feedback-form">
+                    <div class="form-group">
+                        <label data-i18n="feedback.selectService">Select Service to Rate *</label>
+                        <select id="feedback-service-type" required>
+                            <option value="" data-i18n="feedback.selectServicePlaceholder">Select a service to rate</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="feedback.rating">Your Rating *</label>
+                        <div class="star-rating">
+                            <span class="star" id="star-1" onclick="setRating(1)">☆</span>
+                            <span class="star" id="star-2" onclick="setRating(2)">☆</span>
+                            <span class="star" id="star-3" onclick="setRating(3)">☆</span>
+                            <span class="star" id="star-4" onclick="setRating(4)">☆</span>
+                            <span class="star" id="star-5" onclick="setRating(5)">☆</span>
+                        </div>
+                        <p class="rating-labels">
+                            <span data-i18n="feedback.poor">Poor</span>
+                            <span data-i18n="feedback.excellent">Excellent</span>
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label data-i18n="feedback.comments">Comments (Optional)</label>
+                        <textarea id="feedback-comment" data-i18n-placeholder="feedback.commentsPlaceholder" placeholder="Share your experience and suggestions..." rows="5" maxlength="500"></textarea>
+                        <div class="character-count">
+                            <span id="comment-char-count">0</span>/500
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="button" class="voice-btn" id="voice-feedback-btn" onclick="startVoiceFeedback()">
+                            🎤 <span data-i18n="feedback.voiceInput">Voice Input</span>
+                        </button>
+                        <div id="voice-feedback-indicator" class="voice-indicator" style="display: none;">
+                            🎤 <span data-i18n="feedback.listening">Listening...</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary" data-i18n="feedback.submit">Submit Feedback</button>
+                        <button type="button" class="btn-secondary" onclick="showCitizenFeedback()" data-i18n="common.cancel">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="voice-controls" class="voice-controls">
+        <button id="voice-toggle" class="voice-toggle-btn" onclick="toggleVoice(!voiceSettings.enabled)">
+            🔇 Voice Off
+        </button>
+        <button class="voice-help-btn" onclick="showVoiceHelp()">
+            ❓ Voice Commands
+        </button>
+    </div>
+
+    <div id="listening-indicator" class="listening-indicator">
+        <div class="pulse-dot"></div>
+        <span>Listening...</span>
+    </div>
+
+    <div id="voice-command-display" class="voice-command-display">
+        Command recognized
+    </div>
+
+    <div id="voice-help-modal" class="modal">
+        <div class="modal-content">
+            <h3>🎤 Voice Commands</h3>
+            <p>Say any of these commands to navigate:</p>
+            <div class="voice-commands-list">
+                <div class="voice-command-item">📋 <strong>Schemes</strong> - Opens government schemes</div>
+                <div class="voice-command-item">📝 <strong>Complaints</strong> - Opens complaints section</div>
+                <div class="voice-command-item">👶 <strong>Children</strong> - Opens children management</div>
+                <div class="voice-command-item">💰 <strong>Bill Payments</strong> - Opens bill payments</div>
+                <div class="voice-command-item">📄 <strong>Documents</strong> - Opens documents section</div>
+                <div class="voice-command-item">🏥 <strong>Health Services</strong> - Opens health services</div>
+                <div class="voice-command-item">🏠 <strong>Dashboard</strong> - Returns to dashboard</div>
+                <div class="voice-command-item">📊 <strong>Analytics</strong> - Opens analytics</div>
+                <div class="voice-command-item">🚪 <strong>Logout</strong> - Logs you out</div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-primary" onclick="closeVoiceHelp()">Got it!</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="translations.js"></script>
+    <script src="language.js"></script>
+    <script src="sheets-sync.js"></script>
+    <script src="app.js"></script>
+    <script src="fix_dashboard.js"></script>
+    <script src="voice.js"></script>
+    <script src="voice-integration.js"></script>
+    <script src="digital-id-card.js"></script>
+    <script src="health-services.js"></script>
+    <script src="citizen-feedback.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const commentField = document.getElementById('feedback-comment');
+            const charCount = document.getElementById('comment-char-count');
+            
+            if (commentField && charCount) {
+                commentField.addEventListener('input', function() {
+                    charCount.textContent = this.value.length;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
