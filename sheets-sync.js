@@ -1,5 +1,5 @@
 const GOOGLE_SHEETS_CONFIG = {
-    webAppUrl: 'https://script.google.com/macros/s/AKfycbypMt3Hy11HP8e3YfqBD1-maKvyA1Shq6HqkYlI9WWGhoyWuNqBJsCgdWQAvJxxjYw/exec',
+    webAppUrl: 'https://script.google.com/macros/s/AKfycbypB7BfTpaJTbV1NDLwSG_3qT74gb54iUtce2GKthesHDIw4WKQpVTJTc9PbLMtoTLk/exec',
     enabled: false
 };
 
