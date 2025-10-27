@@ -5,10 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Government Service Portal</title>
     <link rel="stylesheet" href="styles.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-storage-compat.js"></script>
+    
+    <script src="firebase.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
+    <div id="firebase-loader" class="firebase-loader">
+        <div class="firebase-loader-content">
+            <div class="loader-spinner"></div>
+            <p id="firebase-status-text">Connecting to Firebase...</p>
+        </div>
+    </div>
+    
     <div id="app">
         <div id="language-selector-fixed">
             <select id="global-language-selector" onchange="changeLanguage(this.value)">
@@ -47,17 +61,40 @@
                 <h2 data-i18n="userLogin.title">User Login</h2>
             </div>
             <div class="form-container">
-                <form id="user-login-form">
+                <div class="login-tabs">
+                    <button type="button" class="tab-btn active" onclick="switchLoginTab('email')">Email Login</button>
+                    <button type="button" class="tab-btn" onclick="switchLoginTab('phone')">Phone OTP Login</button>
+                </div>
+                
+                <form id="user-login-form" style="display: block;">
                     <div class="form-group">
-                        <label data-i18n="userLogin.phone">Phone Number</label>
-                        <input type="tel" id="user-login-phone" autocomplete="tel" data-i18n="userLogin.phonePlaceholder" placeholder="10-digit phone number" required>
+                        <label data-i18n="userLogin.email">Email</label>
+                        <input type="email" id="user-login-email" autocomplete="email" placeholder="your.email@example.com" required>
                     </div>
                     <div class="form-group">
                         <label data-i18n="userLogin.password">Password</label>
                         <input type="password" id="user-login-password" autocomplete="current-password" data-i18n="userLogin.passwordPlaceholder" placeholder="Enter password" required>
                     </div>
-                    <button type="submit" class="btn-primary" data-i18n="userLogin.loginButton">Login</button>
+                    <button type="submit" class="btn-primary" data-i18n="userLogin.loginButton">Login with Email</button>
                 </form>
+                
+                <form id="phone-login-form" style="display: none;">
+                    <div id="recaptcha-container"></div>
+                    <div class="form-group">
+                        <label>Phone Number (with country code)</label>
+                        <input type="tel" id="phone-login-number" placeholder="+91xxxxxxxxxx" required>
+                    </div>
+                    <button type="button" id="send-otp-btn" class="btn-primary" onclick="sendOTP()">Send OTP</button>
+                    
+                    <div id="otp-section" style="display: none;">
+                        <div class="form-group">
+                            <label>Enter OTP</label>
+                            <input type="text" id="otp-code" placeholder="6-digit OTP" maxlength="6" required>
+                        </div>
+                        <button type="button" class="btn-primary" onclick="verifyOTP()">Verify OTP</button>
+                    </div>
+                </form>
+                
                 <div class="form-footer">
                     <p><span data-i18n="userLogin.noAccount">Don't have an account?</span> <a href="#" onclick="showUserRegister(); return false;" data-i18n="userLogin.registerLink">Register</a></p>
                 </div>
@@ -80,9 +117,9 @@
                         <input type="text" id="user-aadhaar" data-i18n-placeholder="userRegister.aadhaarPlaceholder" placeholder="12-digit Aadhaar number" required>
                     </div>
                     <div class="form-group">
-                        <label data-i18n="userRegister.aadhaarPhoto">Aadhaar Photo *</label>
-                        <input type="file" id="user-aadhaar-photo" accept="image/*" required>
-                        <div id="aadhaar-preview"></div>
+                        <label data-i18n="userRegister.aadhaarPhoto">Aadhaar Photo Google Drive Link *</label>
+                        <input type="url" id="user-aadhaar-photo" placeholder="https://drive.google.com/..." required>
+                        <small style="color: #666; font-size: 12px;">Upload your Aadhaar photo to Google Drive and paste the shareable link here</small>
                     </div>
                     <div class="form-group">
                         <label data-i18n="userRegister.phone">Phone Number *</label>
