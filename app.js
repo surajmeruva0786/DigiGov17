@@ -53,17 +53,102 @@ function addFamilyMember() {
     familyContainer.appendChild(memberDiv);
 }
 
-document.getElementById('user-aadhaar-photo').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const preview = document.getElementById('aadhaar-preview');
-            preview.innerHTML = `<img src="${event.target.result}" alt="Aadhaar Preview">`;
-        };
-        reader.readAsDataURL(file);
+let confirmationResult = null;
+let recaptchaVerifier = null;
+
+function switchLoginTab(tab) {
+    const emailForm = document.getElementById('user-login-form');
+    const phoneForm = document.getElementById('phone-login-form');
+    const tabs = document.querySelectorAll('.tab-btn');
+    
+    tabs.forEach(btn => btn.classList.remove('active'));
+    
+    if (tab === 'email') {
+        emailForm.style.display = 'block';
+        phoneForm.style.display = 'none';
+        tabs[0].classList.add('active');
+    } else {
+        emailForm.style.display = 'none';
+        phoneForm.style.display = 'block';
+        tabs[1].classList.add('active');
+        
+        if (!recaptchaVerifier) {
+            recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+                'size': 'normal',
+                'callback': function(response) {
+                    console.log('reCAPTCHA solved');
+                }
+            });
+            recaptchaVerifier.render();
+        }
     }
-});
+}
+
+function sendOTP() {
+    const phoneNumber = document.getElementById('phone-login-number').value;
+    
+    if (!phoneNumber || phoneNumber.length < 10) {
+        alert('Please enter a valid phone number with country code (e.g., +91xxxxxxxxxx)');
+        return;
+    }
+    
+    const appVerifier = recaptchaVerifier;
+    
+    firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+        .then(function(confirmResult) {
+            confirmationResult = confirmResult;
+            document.getElementById('otp-section').style.display = 'block';
+            document.getElementById('send-otp-btn').disabled = true;
+            alert('OTP sent successfully! Check your phone.');
+        })
+        .catch(function(error) {
+            console.error('Error sending OTP:', error);
+            alert('Error sending OTP: ' + error.message);
+        });
+}
+
+function verifyOTP() {
+    const code = document.getElementById('otp-code').value;
+    
+    if (!code || code.length !== 6) {
+        alert('Please enter a valid 6-digit OTP');
+        return;
+    }
+    
+    confirmationResult.confirm(code)
+        .then(function(result) {
+            const user = result.user;
+            
+            db.collection('users').doc(user.uid).get()
+                .then(function(doc) {
+                    if (doc.exists) {
+                        currentUser = { uid: user.uid, ...doc.data() };
+                        
+                        const voicePreference = localStorage.getItem('voicePreference');
+                        if (voicePreference === null) {
+                            showVoiceSetup();
+                        } else {
+                            showUserDashboard();
+                        }
+                        
+                        document.getElementById('phone-login-form').reset();
+                        document.getElementById('otp-section').style.display = 'none';
+                        document.getElementById('send-otp-btn').disabled = false;
+                    } else {
+                        alert('User profile not found. Please register first.');
+                        firebase.auth().signOut();
+                    }
+                })
+                .catch(function(error) {
+                    console.error('Error fetching user data:', error);
+                    alert('Error loading user data');
+                });
+        })
+        .catch(function(error) {
+            console.error('Error verifying OTP:', error);
+            alert('Invalid OTP. Please try again.');
+        });
+}
 
 document.getElementById('user-register-form').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -74,101 +159,106 @@ document.getElementById('user-register-form').addEventListener('submit', functio
     const email = document.getElementById('user-email').value;
     const password = document.getElementById('user-password').value;
     const address = document.getElementById('user-address').value;
+    const aadhaarPhotoLink = document.getElementById('user-aadhaar-photo').value;
     
-    const aadhaarPhotoFile = document.getElementById('user-aadhaar-photo').files[0];
-    
-    if (!aadhaarPhotoFile) {
-        alert('Please upload Aadhaar photo');
+    if (!aadhaarPhotoLink) {
+        alert('Please provide Aadhaar photo Google Drive link');
         return;
     }
     
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const aadhaarPhoto = event.target.result;
+    const familyMembers = [];
+    document.querySelectorAll('.family-member').forEach(member => {
+        const name = member.querySelector('.family-name').value;
+        const relation = member.querySelector('.family-relation').value;
+        const age = member.querySelector('.family-age').value;
         
-        const familyMembers = [];
-        document.querySelectorAll('.family-member').forEach(member => {
-            const name = member.querySelector('.family-name').value;
-            const relation = member.querySelector('.family-relation').value;
-            const age = member.querySelector('.family-age').value;
+        if (name && relation && age) {
+            familyMembers.push({ name, relation, age });
+        }
+    });
+    
+    auth.createUserWithEmailAndPassword(email, password)
+        .then(function(userCredential) {
+            const user = userCredential.user;
             
-            if (name && relation && age) {
-                familyMembers.push({ name, relation, age });
+            return db.collection('users').doc(user.uid).set({
+                name: fullName,
+                aadhaar: aadhaar,
+                phone: phone,
+                email: email,
+                address: address,
+                aadhaarPhotoLink: aadhaarPhotoLink,
+                familyMembers: familyMembers,
+                role: 'User',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        })
+        .then(function() {
+            logActivity('user_registered', { email: email, phone: phone, aadhaar: aadhaar });
+            
+            alert('Registration successful! Please login with your email and password.');
+            showUserLogin();
+            document.getElementById('user-register-form').reset();
+        })
+        .catch(function(error) {
+            console.error('Error during registration:', error);
+            
+            if (error.code === 'auth/email-already-in-use') {
+                alert('This email is already registered. Please login instead.');
+            } else if (error.code === 'auth/weak-password') {
+                alert('Password should be at least 6 characters.');
+            } else {
+                alert('Registration error: ' + error.message);
             }
         });
-        
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        
-        if (users.find(u => u.phone === phone)) {
-            alert('User with this phone number already exists');
-            return;
-        }
-        
-        const newUser = {
-            name: fullName,
-            aadhaar,
-            phone,
-            email,
-            password,
-            address,
-            aadhaarPhoto,
-            familyMembers,
-            createdAt: new Date().toISOString()
-        };
-        
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-        
-        logActivity('user_registered', { email: email, phone: phone, aadhaar: aadhaar });
-        
-        if (typeof syncUserToGoogleSheets === 'function') {
-            syncUserToGoogleSheets(newUser).then(result => {
-                if (result.success) {
-                    console.log('User data synced to Google Sheets');
-                } else {
-                    console.log('Google Sheets sync failed:' , result.reason || result.error);
-                }
-            }).catch(err => {
-                console.log('Google Sheets sync error:', err);
-            });
-        }
-        
-        alert('Registration successful! Please login.');
-        showUserLogin();
-        document.getElementById('user-register-form').reset();
-        document.getElementById('aadhaar-preview').innerHTML = '';
-    };
-    
-    reader.readAsDataURL(aadhaarPhotoFile);
 });
 
 document.getElementById('user-login-form').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    const phone = document.getElementById('user-login-phone').value;
+    const email = document.getElementById('user-login-email').value;
     const password = document.getElementById('user-login-password').value;
     
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.phone === phone && u.password === password);
-    
-    if (user) {
-        currentUser = user;
-        
-        if (typeof autoGenerateIDOnRegistration === 'function') {
-            autoGenerateIDOnRegistration();
-        }
-        
-        const voicePreference = localStorage.getItem('voicePreference');
-        if (voicePreference === null) {
-            showVoiceSetup();
-        } else {
-            showUserDashboard();
-        }
-        
-        document.getElementById('user-login-form').reset();
-    } else {
-        alert('Invalid phone number or password');
-    }
+    auth.signInWithEmailAndPassword(email, password)
+        .then(function(userCredential) {
+            const user = userCredential.user;
+            
+            return db.collection('users').doc(user.uid).get();
+        })
+        .then(function(doc) {
+            if (doc.exists) {
+                currentUser = { uid: doc.id, ...doc.data() };
+                
+                if (typeof autoGenerateIDOnRegistration === 'function') {
+                    autoGenerateIDOnRegistration();
+                }
+                
+                const voicePreference = localStorage.getItem('voicePreference');
+                if (voicePreference === null) {
+                    showVoiceSetup();
+                } else {
+                    showUserDashboard();
+                }
+                
+                document.getElementById('user-login-form').reset();
+            } else {
+                alert('User profile not found. Please contact support.');
+                auth.signOut();
+            }
+        })
+        .catch(function(error) {
+            console.error('Login error:', error);
+            
+            if (error.code === 'auth/user-not-found') {
+                alert('No account found with this email. Please register first.');
+            } else if (error.code === 'auth/wrong-password') {
+                alert('Incorrect password. Please try again.');
+            } else if (error.code === 'auth/invalid-email') {
+                alert('Invalid email address.');
+            } else {
+                alert('Login error: ' + error.message);
+            }
+        });
 });
 
 document.getElementById('official-register-form').addEventListener('submit', function(e) {
